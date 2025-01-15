@@ -67,7 +67,7 @@ with customers as (
 
 orders as (
 
-    select * from {{ref('stg_orders')}}
+    select * from {{ref('fact_orders')}}
 ),
 
 payments as (
@@ -79,7 +79,8 @@ payments as (
 select customer_id ,order_id,
 min (order_date) as first_order_date,
 max(order_date) as most_recent_order_date,
-count(order_id) as number_of_orders 
+count(order_id) as number_of_orders ,
+sum(amount) as lifetime_value
 from orders 
 group by 1,2
 ),
@@ -92,6 +93,7 @@ customers.customer_id,customers.first_name,customers.last_name,customer_orders.f
 ,payments.payment_status as payment_status
 ,payments.payment_amount as payment_amount
 ,payments.created_date as payment_Date
+,customer_orders.lifetime_value
 from customers
 left join customer_orders using(customer_id)
 left join payments using (order_id)
